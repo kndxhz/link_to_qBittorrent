@@ -305,6 +305,10 @@ namespace qBHelper
             {
                 AddTorrentAsync(target).ConfigureAwait(false);
             }
+            else
+            {
+                Application.Exit();
+            }
         }
 
         private async Task AddTorrentAsync(string uriOrFile)
