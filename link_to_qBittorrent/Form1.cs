@@ -299,16 +299,23 @@ namespace qBHelper
             string target = args[1];
             if (!target.StartsWith("magnet:") && !target.EndsWith(".torrent", StringComparison.OrdinalIgnoreCase))
                 return;
+            var add = MessageBox.Show($"是否添加到 qBittorrent?\r\n{target}", "添加种子", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            //MessageBox.Show(add.ToString());
+            if (add == DialogResult.No)
+            {
+                Environment.Exit(0); // 使用Environment.Exit替代Application.Exit以强制退出
+                return;
+            }
 
-            if (MessageBox.Show($"是否添加到 qBittorrent?\r\n{target}", "添加种子",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            // 使用Task.Run创建新线程运行异步方法，确保应用程序响应
+            Task.Run(async () =>
             {
-                AddTorrentAsync(target).ConfigureAwait(false);
-            }
-            else
-            {
-                Application.Exit();
-            }
+                await AddTorrentAsync(target);
+                // 添加完成后退出应用程序
+                this.Invoke(new Action(() => Environment.Exit(0)));
+            });
+
+
         }
 
         private async Task AddTorrentAsync(string uriOrFile)
